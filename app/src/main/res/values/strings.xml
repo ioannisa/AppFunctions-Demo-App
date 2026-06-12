@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">NetworkApp</string>
+    <string name="menu_clear_favorites">Clear Favorites</string>
+</resources>
