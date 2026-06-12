@@ -1,10 +1,12 @@
 package eu.anifantakis.networkapp.di
 
+import androidx.appfunctions.service.AppFunctionConfiguration
 import androidx.room.Room
 import eu.anifantakis.lib.ksafe.KSafe
 import eu.anifantakis.networkapp.features.core.data.JokesDatabase
 import eu.anifantakis.networkapp.features.core.data.KtorClient
 import eu.anifantakis.networkapp.features.core.data.MIGRATION_1_2
+import eu.anifantakis.networkapp.features.jokes.appfunctions.JokesAppFunctions
 import eu.anifantakis.networkapp.features.jokes.data.JokesRepositoryImpl
 import eu.anifantakis.networkapp.features.jokes.data.datasource.LocalJokesDataSourceImpl
 import eu.anifantakis.networkapp.features.jokes.data.datasource.RemoteJokesDataSourceImpl
@@ -41,4 +43,12 @@ val appModule = module {
 
     viewModel { new(::JokesListViewModel) }
     viewModel { parameters -> JokesDetailsViewModel(joke = parameters.get(), repository = get()) }
+
+    // App Functions
+    single<JokesAppFunctions> { new(::JokesAppFunctions) }
+    single<AppFunctionConfiguration> {
+        AppFunctionConfiguration.Builder()
+            .addEnclosingClassFactory(JokesAppFunctions::class.java) { get<JokesAppFunctions>() }
+            .build()
+    }
 }
