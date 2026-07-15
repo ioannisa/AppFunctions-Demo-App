@@ -11,15 +11,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = _root_ide_package_.eu.anifantakis.networkapp.features.core.presentation.ui.theme.Purple80,
-    secondary = _root_ide_package_.eu.anifantakis.networkapp.features.core.presentation.ui.theme.PurpleGrey80,
-    tertiary = _root_ide_package_.eu.anifantakis.networkapp.features.core.presentation.ui.theme.Pink80
+    primary = Purple80,
+    secondary = PurpleGrey80,
+    tertiary = Pink80
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = _root_ide_package_.eu.anifantakis.networkapp.features.core.presentation.ui.theme.Purple40,
-    secondary = _root_ide_package_.eu.anifantakis.networkapp.features.core.presentation.ui.theme.PurpleGrey40,
-    tertiary = _root_ide_package_.eu.anifantakis.networkapp.features.core.presentation.ui.theme.Pink40
+    primary = Purple40,
+    secondary = PurpleGrey40,
+    tertiary = Pink40
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -40,17 +40,17 @@ fun NetworkAppTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-      dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-        val context = LocalContext.current
-        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-      }
-      darkTheme -> _root_ide_package_.eu.anifantakis.networkapp.features.core.presentation.ui.theme.DarkColorScheme
-      else -> _root_ide_package_.eu.anifantakis.networkapp.features.core.presentation.ui.theme.LightColorScheme
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
     }
 
     MaterialTheme(
-      colorScheme = colorScheme,
-      typography = _root_ide_package_.eu.anifantakis.networkapp.features.core.presentation.ui.theme.Typography,
-      content = content
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
     )
 }
