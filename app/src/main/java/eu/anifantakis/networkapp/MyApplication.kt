@@ -1,14 +1,12 @@
 package eu.anifantakis.networkapp
 
 import android.app.Application
-import androidx.appfunctions.service.AppFunctionConfiguration
 import eu.anifantakis.networkapp.di.appModule
-import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 
-class MyApplication: Application(), AppFunctionConfiguration.Provider {
+class MyApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
@@ -19,6 +17,4 @@ class MyApplication: Application(), AppFunctionConfiguration.Provider {
             modules(appModule)
         }
     }
-
-    override val appFunctionConfiguration: AppFunctionConfiguration by inject()
 }

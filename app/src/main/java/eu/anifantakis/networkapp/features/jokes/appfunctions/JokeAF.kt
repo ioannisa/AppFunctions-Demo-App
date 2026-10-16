@@ -19,7 +19,7 @@ data class JokeAF(
 )
 
 /**
- * Extension function to convert a domain [Joke] into its AppFunctions boundary model [AppFunctionJoke].
+ * Extension function to convert a domain [Joke] into its AppFunctions boundary model [JokeAF].
  */
 fun Joke.toJokeAF(): JokeAF = JokeAF(
     id = id,

@@ -10,10 +10,6 @@ plugins {
     alias(libs.plugins.koin.compiler)
 }
 
-ksp {
-    arg("appfunctions:aggregateAppFunctions", "true")
-}
-
 configure<ApplicationExtension> {
     namespace = "eu.anifantakis.networkapp"
     compileSdk = 37
@@ -95,7 +91,6 @@ dependencies {
 
     // App Functions
     implementation(libs.androidx.appfunctions)
-    implementation(libs.androidx.appfunctions.service)
     ksp(libs.androidx.appfunctions.compiler)
 
     testImplementation(libs.junit)

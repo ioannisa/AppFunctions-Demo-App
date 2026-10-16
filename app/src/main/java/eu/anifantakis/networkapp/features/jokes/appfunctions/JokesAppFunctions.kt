@@ -1,18 +1,33 @@
 package eu.anifantakis.networkapp.features.jokes.appfunctions
 
-import androidx.appfunctions.AppFunctionContext
+import androidx.annotation.RequiresApi
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionElementNotFoundException
-import androidx.appfunctions.service.AppFunction
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 import eu.anifantakis.networkapp.features.jokes.domain.JokesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
 
 /**
  * App Functions that can be exposed to AI agents via MCP.
+ *
+ * AppFunctions live inside an abstract [AppFunctionService] marked with
+ * [AppFunctionServiceEntryPoint]. From this class KSP generates:
+ * - `JokesAppFunctionService`, the concrete service registered in `AndroidManifest.xml`.
+ * - `assets/jokes_app_functions.xml`, the schema that describes each function to agents.
+ *
+ * The system creates the service, so dependencies come from Koin instead of the constructor.
  */
-class JokesAppFunctions(
-    val repository: JokesRepository
-) {
+@RequiresApi(36)
+@AppFunctionServiceEntryPoint(
+    serviceName = "JokesAppFunctionService",
+    appFunctionXmlFileName = "jokes_app_functions", // no ".xml": KSP appends it
+)
+abstract class JokesAppFunctions : AppFunctionService() {
+
+    private val repository: JokesRepository by inject()
 
     /**
      * Unmarks every joke the user has previously marked as a favorite, leaving the favorites list empty.
@@ -23,8 +38,8 @@ class JokesAppFunctions(
      *
      * @return A short human-readable status message describing whether the operation succeeded.
      */
-    @AppFunction(isDescribedByKDoc = true)
-    suspend fun clearFavorites(context: AppFunctionContext): String {
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    suspend fun clearFavorites(): String {
         val result = repository.clearAllFavorites()
 
         return if (result.isSuccess) {
@@ -43,8 +58,8 @@ class JokesAppFunctions(
      *
      * @return The user's favorite jokes; an empty list if there are none.
      */
-    @AppFunction(isDescribedByKDoc = true)
-    suspend fun getFavorites(context: AppFunctionContext): List<JokeAF> = withContext(Dispatchers.IO) {
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    suspend fun getFavorites(): List<JokeAF> = withContext(Dispatchers.IO) {
         val result = repository.getFavorites()
 
         result.getOrDefault(emptyList()).map { joke -> joke.toJokeAF() }
@@ -63,9 +78,8 @@ class JokesAppFunctions(
      * @throws AppFunctionElementNotFoundException If no joke exists with the given jokeId; suggest the
      * user call "getFavorites" or browse the jokes list to obtain a valid id.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun setFavorite(
-        context: AppFunctionContext,
         jokeId: Int,
         isFavorite: Boolean,
     ): String = withContext(Dispatchers.IO) {
