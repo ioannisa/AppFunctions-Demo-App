@@ -245,6 +245,12 @@ private fun JokesListItem(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Text(
+                    text = joke.id.toString(),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(end = 16.dp)
+                )
+
                 Column(
                     modifier = Modifier.weight(1f),
                 ) {
