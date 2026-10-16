@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">NetworkApp</string>
     <string name="menu_clear_favorites">Clear Favorites</string>
+    <string name="app_functions_display_description">View and manage your favorite jokes</string>
 </resources>

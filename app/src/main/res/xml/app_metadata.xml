@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AppFunctionAppMetadata
     xmlns:appfn="http://schemas.android.com/apk/androidx.appfunctions"
-    appfn:description="This app allows users to view and manage jokes, including marking them as favorites and clearing the favorites list." />
+    appfn:description="This app manages the user's favorite jokes.
+
+    Operational Patterns:
+    - Use 'getFavorites' to inspect the current favorites and obtain their joke IDs.
+    - Use 'setFavorite' when the ID of the target joke is known.
+    - Use 'clearFavorites' only when the user wants to remove all favorites.
+
+    Constraints:
+    - Clearing all favorites must only be performed when explicitly requested by the user."
+    appfn:displayDescription="@string/app_functions_display_description" />

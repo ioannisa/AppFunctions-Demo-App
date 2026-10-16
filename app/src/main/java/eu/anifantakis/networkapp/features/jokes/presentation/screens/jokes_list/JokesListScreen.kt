@@ -54,7 +54,6 @@ import eu.anifantakis.networkapp.R
 import eu.anifantakis.networkapp.features.jokes.domain.Joke
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import kotlin.toString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
