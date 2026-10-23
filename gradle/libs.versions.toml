@@ -21,7 +21,7 @@ ksafe = "3.3.0"
 koin = "4.2.2"
 koin-plugin = "1.2.1"
 
-appfunctions = "1.0.0-alpha13"
+appfunctions = "1.0.0-beta01"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
