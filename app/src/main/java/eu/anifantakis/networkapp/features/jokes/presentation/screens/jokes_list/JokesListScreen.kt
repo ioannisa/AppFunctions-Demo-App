@@ -3,6 +3,7 @@ package eu.anifantakis.networkapp.features.jokes.presentation.screens.jokes_list
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,7 +56,6 @@ import eu.anifantakis.networkapp.features.jokes.domain.Joke
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JokesListScreenRoot(
     modifier: Modifier = Modifier,
@@ -79,58 +79,11 @@ fun JokesListScreenRoot(
         }
     }
 
-    var menuExpanded by rememberSaveable { mutableStateOf(false) }
-    Scaffold(
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
-        topBar = {
-            TopAppBar(
-                title = { Text("Jokes List") },
-                actions = {
-                    // Add IconButton for the menu
-                    IconButton(onClick = { menuExpanded = true }) {
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "content description"
-                        )
-                    }
-                    // Add DropdownMenu
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Preferences") },
-                            onClick = {
-                                menuExpanded = false
-                                //onGoToPreferences() // Call the navigation lambda
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("About") },
-                            onClick = {
-                                menuExpanded = false
-                                //onGoToAbout() // Call the navigation lambda
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.menu_clear_favorites)) },
-                            onClick = {
-                                menuExpanded = false
-                                viewModel.onIntent(JokesListIntent.ClearFavorites)
-                            }
-                        )
-                    }
-                }
-            )
-        }
-    ) { inner ->
-
-        JokesListScreen(
-            modifier = Modifier.padding(inner),
-            state = state,
-            onIntent = viewModel::onIntent
-        )
-    }
+    JokesListScreen(
+        modifier = modifier,
+        state = state,
+        onIntent = viewModel::onIntent
+    )
 }
 
 @Composable
@@ -140,86 +93,88 @@ private fun JokesListScreen(
     onIntent: (JokesListIntent) -> Unit
 ) {
 
-    val pullToRefreshState = rememberPullToRefreshState()
+    JokesListScreenScaffold(onIntent = onIntent) { inner ->
+        val pullToRefreshState = rememberPullToRefreshState()
 
-    PullToRefreshBox (
-        modifier = modifier,
-        contentAlignment = Alignment.Center,
-        state = pullToRefreshState,
-        isRefreshing = state.refreshing,
-        onRefresh = { onIntent(JokesListIntent.Refresh) },
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxSize()
+        PullToRefreshBox(
+            modifier = modifier.padding(inner),
+            contentAlignment = Alignment.Center,
+            state = pullToRefreshState,
+            isRefreshing = state.refreshing,
+            onRefresh = { onIntent(JokesListIntent.Refresh) },
         ) {
-
-            val kSafe: KSafe = koinInject()
-            //var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
-            var selectedTabIndex by kSafe.rememberKSafeState(0)
-
-            val tabs = listOf(
-                "All",
-                "Favorites"
-            )
-
-            PrimaryTabRow(
-                selectedTabIndex = selectedTabIndex,
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxSize()
             ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        text = { Text(title) },
-                        selected = selectedTabIndex == index,
-                        onClick = {
 
-                            println("[test] selectedTabIndex before $selectedTabIndex")
-                            selectedTabIndex = index
-                            println("[test] index: $index")
-                            println("[test] selectedTabIndex after $selectedTabIndex")
+                val kSafe: KSafe = koinInject()
+                //var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
+                var selectedTabIndex by kSafe.rememberKSafeState(0)
 
-                        }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            val displayedJokes = when (selectedTabIndex) {
-                0 -> state.jokes
-                1 -> state.jokes.filter { it.isFavorite }
-                else -> state.jokes
-            }
-
-            LazyColumn(
-                modifier = Modifier.weight(1f)
-            ) {
-                items(
-                    items = displayedJokes,
-                    key = { it.id }
-                ) { joke ->
-                    JokesListItem(
-                        joke = joke,
-                        onIntent = onIntent
-                    )
-                }
-            }
-
-            state.lastUpdate?.let { lastUpdate ->
-                Text(
-                    text = "Last updated: $lastUpdate",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    textAlign = TextAlign.Center
+                val tabs = listOf(
+                    "All",
+                    "Favorites"
                 )
-            }
-        }
 
-        if (state.loading) {
-            CircularProgressIndicator()
+                PrimaryTabRow(
+                    selectedTabIndex = selectedTabIndex,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            text = { Text(title) },
+                            selected = selectedTabIndex == index,
+                            onClick = {
+
+                                println("[test] selectedTabIndex before $selectedTabIndex")
+                                selectedTabIndex = index
+                                println("[test] index: $index")
+                                println("[test] selectedTabIndex after $selectedTabIndex")
+
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val displayedJokes = when (selectedTabIndex) {
+                    0 -> state.jokes
+                    1 -> state.jokes.filter { it.isFavorite }
+                    else -> state.jokes
+                }
+
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(
+                        items = displayedJokes,
+                        key = { it.id }
+                    ) { joke ->
+                        JokesListItem(
+                            joke = joke,
+                            onIntent = onIntent
+                        )
+                    }
+                }
+
+                state.lastUpdate?.let { lastUpdate ->
+                    Text(
+                        text = "Last updated: $lastUpdate",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            if (state.loading) {
+                CircularProgressIndicator()
+            }
         }
     }
 }
@@ -278,6 +233,61 @@ private fun JokesListItem(
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun JokesListScreenScaffold(
+    onIntent: (JokesListIntent) -> Unit,
+    content: @Composable (PaddingValues) -> Unit
+) {
+    var menuExpanded by rememberSaveable { mutableStateOf(false) }
+    Scaffold(
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
+        topBar = {
+            TopAppBar(
+                title = { Text("Jokes List") },
+                actions = {
+                    // Add IconButton for the menu
+                    IconButton(onClick = { menuExpanded = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "content description"
+                        )
+                    }
+                    // Add DropdownMenu
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Preferences") },
+                            onClick = {
+                                menuExpanded = false
+                                //onGoToPreferences() // Call the navigation lambda
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("About") },
+                            onClick = {
+                                menuExpanded = false
+                                //onGoToAbout() // Call the navigation lambda
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.menu_clear_favorites)) },
+                            onClick = {
+                                menuExpanded = false
+                                onIntent(JokesListIntent.ClearFavorites)
+                            }
+                        )
+                    }
+                }
+            )
+        }
+    ) { inner ->
+        content(inner)
     }
 }
 

@@ -1,5 +1,6 @@
 package eu.anifantakis.networkapp.features.jokes.presentation.screens.jokes_list
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@Immutable
 data class JokesListState(
     val jokes: List<Joke> = emptyList(),
     val loading: Boolean = false,
