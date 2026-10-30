@@ -1,5 +1,5 @@
 [versions]
-agp = "9.4.1"
+agp = "9.5.0"
 kotlin = "2.4.21"
 coreKtx = "1.19.1"
 junit = "4.13.2"
@@ -11,7 +11,7 @@ composeBom = "2026.09.00"
 
 coil-compose = "2.7.0"
 com-google-devtools-ksp = "2.3.12"
-ktor = "3.6.0"
+ktor = "3.6.1"
 room = "2.8.5"
 
 nav3Core = "1.2.0"
