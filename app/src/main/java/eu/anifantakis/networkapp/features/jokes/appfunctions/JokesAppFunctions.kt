@@ -1,6 +1,7 @@
 package eu.anifantakis.networkapp.features.jokes.appfunctions
 
 import androidx.annotation.RequiresApi
+import androidx.appfunctions.AppFunctionAppUnknownException
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionElementNotFoundException
 import androidx.appfunctions.AppFunctionService
@@ -36,17 +37,17 @@ abstract class JokesAppFunctions : AppFunctionService() {
      * visible in the main list. This operation is safe to repeat: calling it on an already-empty favorites
      * list is a no-op. It is irreversible: cleared favorite markers cannot be restored.
      *
-     * @return A short human-readable status message describing whether the operation succeeded.
+     * @return A short human-readable message confirming that all favorites were cleared.
+     * @throws AppFunctionAppUnknownException If the database update fails; the favorites were not
+     * cleared, so tell the user and suggest trying again.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    suspend fun clearFavorites(): String {
-        val result = repository.clearAllFavorites()
-
-        return if (result.isSuccess) {
-            "All favorite jokes have been cleared successfully."
-        } else {
-            "Failed to clear favorite jokes: ${result.exceptionOrNull()?.message}"
+    suspend fun clearFavorites(): String = withContext(Dispatchers.IO) {
+        repository.clearAllFavorites().getOrElse { error ->
+            throw AppFunctionAppUnknownException("Failed to clear favorite jokes: ${error.message}")
         }
+
+        "All favorite jokes have been cleared successfully."
     }
 
     /**
@@ -57,12 +58,16 @@ abstract class JokesAppFunctions : AppFunctionService() {
      * one. An empty list means the user has no favorites.
      *
      * @return The user's favorite jokes; an empty list if there are none.
+     * @throws AppFunctionAppUnknownException If the database read fails; the favorites could not be
+     * loaded, so tell the user and suggest trying again.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun getFavorites(): List<JokeAF> = withContext(Dispatchers.IO) {
-        val result = repository.getFavorites()
-
-        result.getOrDefault(emptyList()).map { joke -> joke.toJokeAF() }
+        repository.getFavorites()
+            .getOrElse { error ->
+                throw AppFunctionAppUnknownException("Failed to load favorite jokes: ${error.message}")
+            }
+            .map { joke -> joke.toJokeAF() }
     }
 
     /**
@@ -77,21 +82,25 @@ abstract class JokesAppFunctions : AppFunctionService() {
      * @return A short human-readable status message describing the new state of the joke.
      * @throws AppFunctionElementNotFoundException If no joke exists with the given jokeId; suggest the
      * user call "getFavorites" or browse the jokes list to obtain a valid id.
+     * @throws AppFunctionAppUnknownException If the database lookup or update fails; the joke was not
+     * updated, so tell the user and suggest trying again.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun setFavorite(
         jokeId: Int,
         isFavorite: Boolean,
     ): String = withContext(Dispatchers.IO) {
-        val joke = repository.getJokeById(jokeId).getOrNull()
+        val joke = repository.getJokeById(jokeId)
+            .getOrElse { error ->
+                throw AppFunctionAppUnknownException("Failed to look up joke $jokeId: ${error.message}")
+            }
             ?: throw AppFunctionElementNotFoundException("No joke found with id $jokeId.")
 
-        val result = repository.setFavorite(jokeId, isFavorite)
-        if (result.isSuccess) {
-            if (isFavorite) "Joke ${joke.id} is now a favorite." else "Joke ${joke.id} is no longer a favorite."
-        } else {
-            "Failed to update joke ${joke.id}: ${result.exceptionOrNull()?.message}"
+        repository.setFavorite(jokeId, isFavorite).getOrElse { error ->
+            throw AppFunctionAppUnknownException("Failed to update joke ${joke.id}: ${error.message}")
         }
+
+        if (isFavorite) "Joke ${joke.id} is now a favorite." else "Joke ${joke.id} is no longer a favorite."
     }
 }
 

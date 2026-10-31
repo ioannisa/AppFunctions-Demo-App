@@ -5,7 +5,9 @@ import eu.anifantakis.networkapp.features.jokes.domain.Joke
 import eu.anifantakis.networkapp.features.jokes.data.model.JokeEntity
 import eu.anifantakis.networkapp.features.jokes.data.model.toJoke
 import eu.anifantakis.networkapp.features.jokes.domain.datasource.LocalJokesDataSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
 class LocalJokesDataSourceImpl(
@@ -14,9 +16,10 @@ class LocalJokesDataSourceImpl(
 
     override fun getJokes(): Flow<List<Joke>> {
         // The ordering is handled by the DAO query (ORDER BY isFavorite DESC, id ASC)
-        return database.getAllJokes().map { entities ->
-            entities.map { it.toJoke() }
-        }
+        // The row-to-domain mapping runs off the collector's thread (Main in the ViewModel)
+        return database.getAllJokes()
+            .map { entities -> entities.map { it.toJoke() } }
+            .flowOn(Dispatchers.Default)
     }
 
     override suspend fun deleteAllNonFavoriteJokes() {
